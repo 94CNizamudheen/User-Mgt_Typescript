@@ -32,24 +32,27 @@ interface UpdateUserRequestBody{
     image:string;
 };
 
-export const inserUser= async(req:Request<{},{},NewUserRRequestBody>,res:Response):Promise<void>=>{
+export const insertUser= async(req:Request<{},{},NewUserRRequestBody>,res:Response):Promise<void>=>{
     try {
-        const {name,email,password,mno,image}= req.body;
+        const {name,email,password,mno}= req.body;
         const sPassword= await securePassword(password);
+        if(!req.file){
+            return res.render("registration", { message: "Image is required" })
+        }
         
         const user= new User({
             name:name,
             email:email,
             password:sPassword,
             mobile:mno,
-            image:image,
+            image: req.file.filename,
             is_admin:false
         });
         const userData= await user.save();
         if(userData){
-            res.render('registation',{message:"Successfully registered"});
+            res.render('user/registration',{message:"Successfully registered"});
         }else{
-            res.render('registration',{message:"Your registration has failed"});
+            res.render('user/registration',{message:"Your registration has failed"});
         }
 
     } catch (error:any) {
@@ -64,36 +67,51 @@ export const loadRegister= async(req:Request,res:Response):Promise<void>=>{
         console.log(error.message)
     }
 };
-export const verifyLogin=async(req:Request<{},{},LoginRequestBody>,res:Response):Promise<void>=>{
+export const verifyLogin = async (req: Request<{}, {}, LoginRequestBody>, res: Response): Promise<void> => {
     try {
-        const {email,password} =req.body;
-        const userData= await User.findOne({email}) as IUser|null;
-
-        if(userData){
-            const passwordMatch= await bcript.compare(password,userData.password);
-            if(passwordMatch){
-                if(userData.is_admin===true){
-                    res.render('login',{message:"Access denied. Admins cannot log in as users."});
-                }else{
-                    req.session.user_id= userData._id.toString();;
-                    res.redirect('/home');
-
-                }
-            }else{
-                res.render('login',{message:"Incorrect details"});
-            }
-        }else{
-            res.render('login',{message:"Login details are incorrect."})
+        const { email, password } = req.body;
+        if (!email || !password) {
+            res.render('login', { message: "All fields are required" }); // Fixed
+            return;
         }
-    } catch (error) {
-        
+        const userData = await User.findOne({ email }) as IUser | null;
+        if (userData) {
+            const passwordMatch = await bcript.compare(password, userData.password);
+            if (passwordMatch) {
+                if (userData.is_admin === true) {
+                    res.render('login', { message: "Access denied. Admins cannot log in as users." });
+                } else {
+                    req.session.user_id = userData._id.toString();
+                    res.redirect('/home');
+                }
+            } else {
+                res.render('login', { message: "Incorrect details" });
+            }
+        } else {
+            res.render('login', { message: "Login details are incorrect." });
+        }
+    } catch (error: any) {
+        console.log(error.message);
+        res.render('login', { message: "An error occurred. Please try again." });
     }
 };
+export const loadHome= async(req:Request,res:Response):Promise<void>=>{
+    try {
+        if(req.session.user_id){
+            const userData= await User.findById(req.session.user_id) as IUser|null;
+            res.render('home',{user:userData});
+        }else{
+            res.redirect('/login');
+        }
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
 
 export const loadLogin= async (req:Request,res:Response):Promise<void>=>{
     try {
         const userData= await User.findById(req.session.user_id) as IUser |null;
-        res.render('home',{user:userData});
+        res.render('login',{user:userData});
     } catch (error:any) {
         console.log(error.message);
     }
@@ -125,32 +143,46 @@ export const loadEditPage=async(req:Request,res:Response):Promise<void>=>{
     }
 
 };
-export const updateProfile= async(req:MulterRequest,res:Response):Promise<void>=>{
+export const updateProfile = async (req: MulterRequest, res: Response): Promise<void> => {
     try {
-        const {user_id,name,email,mno}= req.body;
-        if(req.file){
-            await User.findByIdAndUpdate(user_id,{
-                $set:{
-                    name,
-                    email,
-                    mobile:mno,
-                    image:req.file.filename
-                }
-            });
+        const { user_id, name, email, mno } = req.body;
+        if (!user_id) {
+            return res.status(400).render('edit', { message: "User ID is required" });
         }
-    } catch (error) {
-        
+
+        let updateData: { name: string; email: string; mobile: string; image?: string } = {
+            name,
+            email,
+            mobile: mno
+        };
+
+        if (req.file) {
+            updateData.image= req.file.filename;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(user_id, { $set: updateData }, { new: true });
+        if (updatedUser) {
+           
+            req.session.user_id = user_id;
+            res.redirect('/home'); 
+        } else {
+            res.status(404).render('edit', { message: "User not found" });
+        }
+    } catch (error: any) {
+        console.log(error.message);
+        res.status(500).render('edit', { message: "An error occurred while updating your profile" });
     }
 };
 
 export default{
-    inserUser,
+    insertUser,
     loadEditPage,
     loadLogin,
     loadRegister,
     updateProfile,
     userLogout,
-    verifyLogin
+    verifyLogin,
+    loadHome
 };
 
 

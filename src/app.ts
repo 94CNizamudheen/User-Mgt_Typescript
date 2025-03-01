@@ -1,10 +1,12 @@
-import mongoose ,{Connection} from 'mongoose';
-import express ,{Application ,Request,Response,NextFunction}from "express";
+import mongoose  from 'mongoose';
+import express ,{Express,Request,Response ,NextFunction }from "express";
 import session from "express-session";
 import nocache from "nocache";
 import path from "path";
 import dotenv from "dotenv";
-import exp from 'constants';
+import config from './config/config';
+import routes from './routes/routes'
+import { promises } from 'dns';
 
 
 declare module 'express-session' {
@@ -13,9 +15,14 @@ declare module 'express-session' {
     }
   };
   
-// import userRoutes from './routes/userRoutes'
+interface SessionConfig{
+  secret:string;
+  resave:boolean;
+  saveUninitialized:boolean;
+};
 
-mongoose.connect("mongodb://127.0.01:27017/user_managment_system")
+dotenv.config();
+mongoose.connect("mongodb://127.0.0.1:27017/user_management_system")
                 .then(()=>{
                     console.log("Connected to MongoDb");
                 })
@@ -23,22 +30,38 @@ mongoose.connect("mongodb://127.0.01:27017/user_managment_system")
                     console.log("MongoDb connection Error: ",err);
                 });
 
-dotenv.config();
-const app:Application = express();
+
+const app:Express = express();
 
 app.use(express.json());
-app.use(nocache())
 app.use(express.urlencoded({extended:true}));
-app.use(express.static("public"));
+app.use(nocache())
+app.use(express.static(path.join(__dirname,'public')));
+
+app.use(session({
+  secret:config.sessionSecret,
+  resave:false,
+  saveUninitialized:false
+}as SessionConfig));
+
 app.set("view engine","ejs");
-app.set("views",path.join(__dirname,"views"));
-app.use(session({secret:"secret",resave:false,saveUninitialized:true,cookie: { secure: false }}));
+app.set("views",[
+  path.join(__dirname,'views/user'),
+  path.join(__dirname,'views')
+]);
 
-// app.use('/',userRoute);
-// app.use('/admin',adminRoute);
 
 
-const port= process.env.PORT||2900;
-app.listen(port,()=>console.log(`runnig on port ${port}`));
+app.use('/',routes)
+
+
+
+const port:number|string = process.env.PORT||2900;
+app.listen(port,()=>console.log(`runnig on port http://localhost:${port}`));
+
+app.use((err:Error,req:Request,res:Response,next:NextFunction)=>{
+  console.error(err.stack);
+  res.status(500).send("Something Broke!");
+})
 
 export default app;

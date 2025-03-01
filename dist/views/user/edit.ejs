@@ -1,0 +1,98 @@
+<% include('../partials/header.ejs') %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/edit.css">
+
+
+<div class="container mt-5" >
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h2 class="text-center  mb-4">Edit Profile</h2>
+
+                    <div class="text-center mb-4">
+                        <img src="userImages/<%= user.image %>" class="rounded-circle" width="150px" height="150px" alt="<%= user.name %>">
+                    </div>
+
+                    <form onsubmit="return validateForm()" action="" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="form-group">
+                            <label for="image">Change Profile Picture</label>
+                            <input type="file" name="image" class="form-control-file" id="image">
+                            <input type="hidden" name="user_id" value="<%= user._id %>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input onblur="validatename()" type="text" name="name" class="form-control" id="name" value="<%= user.name %>" placeholder="Enter your name" required>
+                            <span id="nameError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" name="email" class="form-control" id="email" value="<%= user.email %>" placeholder="Enter your email" required onblur="validateEmail()">
+                            <span id="emaileError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mno">Mobile Number</label>
+                            <input onblur="validateMobile()" type="text" name="mno" class="form-control" id="mno" value="<%= user.mobile %>" placeholder="Enter your mobile number" required>
+                            <span id="mobileError" style="color: red;"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function validatename(){
+    const name=document.getElementById('name').value;
+    const nameRegux= /^[A-Za-z\s]+$/;
+    if(!nameRegux.test(name)){
+        document.getElementById('nameError').textContent="Name can only contain letters and spaces. "
+        return false;
+    }else{
+        document.getElementById('nameError').textContent="";
+        return true;
+    }
+};
+function validateMobile(){
+    const mobile=document.getElementById('mobile').value;
+    const mobileRegux= /^[0-9]{10}$/;
+    if(!mobileRegux.test(mobile)){
+        document.getElementById('mobileError').textContent="Mobile Number must be exactly 10 digit. "
+        return false;
+    }else{
+        document.getElementById('mobileError').textContent="";
+        return true;
+    }
+};
+function validateEmail() {
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = "Please enter a valid email address";
+        return false; 
+    } else {
+        document.getElementById('emailError').textContent = '';
+        return true; 
+    }
+};
+
+function validateForm(){
+    let isNameValid= validatename();
+    let isMobileValid= validateMobile();
+    let isEmailValid= validateEmail();
+    
+    if (isMobileValid && isNameValid && isEmailValid) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+</script>
+<% include('../partials/footer.ejs') %>

@@ -1,0 +1,34 @@
+<% include('../partials/header.ejs') %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/userHome.css">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h2 class="" >Welcome, <%= user.name %></h2>
+                    <img src="userImages/<%= user.image %>" class="rounded-circle mb-3" width="150px" height="150px" alt="<%= user.name %>">
+                    
+                    <table class="table table-bordered ">
+                        <tr>
+                            <th>Email</th>
+                            <td><%= user.email %></td>
+                        </tr>
+                        <tr>
+                            <th>Mobile</th>
+                            <td><%= user.mobile %></td>
+                        </tr>
+                    </table>
+
+                    <a href="/edit?id=<%=user._id%>" class="btn btn-outline-primary btn-block mb-2">Edit Profile</a>
+                    <a href="/logout" class="btn btn-danger btn-block">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include('../partials/footer.ejs') %>
+

@@ -1,0 +1,64 @@
+<% include('../partials/header.ejs') %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/loginstyle.css">
+<style>
+
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; ">
+  <div class="card shadow-lg p-4" style="width: 400px; border-radius: 15px;">
+    <h2 class="text-center  mb-4" style="color: rgb(161, 6, 89);" >Admin Login</h2>
+
+    <!-- Display error message if exists -->
+    <% if (typeof message !== 'undefined') { %>
+      <div class="alert alert-danger text-center">
+        <%= message %>
+      </div>
+    <% } %>
+
+    <!-- Login form -->
+    <form id="loginForm" action="" method="post">
+      <div class="form-group mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" required onblur="validateEmail()">
+        <span id="emailError" style="color: red;"></span>
+      </div>
+
+      <div class="form-group mb-4">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+       
+      
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </div>
+    </form>
+
+    <!-- Styled link to home page -->
+    <div class="text-center mt-3">
+      <a href="/" class="btn btn-link">User Login</a>
+    </div>
+  </div>
+</div>
+
+<script>
+
+function validateEmail() {
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = "Please enter a valid email address";
+        return false; 
+    } else {
+        document.getElementById('emailError').textContent = '';
+        return true; 
+    }
+};
+
+</script>
+
+<% include('../partials/footer.ejs') %>

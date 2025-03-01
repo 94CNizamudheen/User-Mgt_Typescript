@@ -1,0 +1,62 @@
+<% include('../partials/header.ejs') %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="">Admin Dashboard</h1>
+        <a href="/admin/new-user" class="btn btn-primary">Add New User</a>
+    </div>
+    <form action="/admin/search-users" method="get" class="search-form d-flex justify-content-center align-items-center">
+        <input type="text" name="q" class="form-control search-input" placeholder="Search by name or email" value="<%= searchQuery%>">
+        <button type="submit" class="btn btn-primary search-btn">Search</button>
+    </form>
+    <div class="table-responsive " >
+        <table class="table table-striped table-bordered text-center ">
+            <thead class="thead-dark" >
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (users.length > 0) { %>
+                    <% users.forEach(function(user) { %>
+                        <tr>
+                            <td><%= user.name %></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.mobile %></td>
+                            <td>
+                                <img src="/userImages/<%= user.image %>" class="img-thumbnail" alt="<%= user.image %>" width="50px" height="50px">
+                            </td>
+                            <td>
+                                <a href="/admin/edit-user?id=<%= user._id %>" class="btn btn-sm btn-outline-primary m-2">Edit</a>
+                                <a href="/admin/delete-user?id=<%= user._id %>" class="btn btn-sm btn-outline-danger" onclick="return deleteconfirmation('<%= user.name %>')">Delete</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5">No users found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="/admin/home" class="btn btn-secondary">Go to Home</a>
+    </div>
+</div>
+
+<script>
+    function deleteconfirmation(userName){
+        return confirm("Are you want to delete the user"+userName+"?");
+    }
+</script>
+
+<% include('../partials/footer.ejs') %>

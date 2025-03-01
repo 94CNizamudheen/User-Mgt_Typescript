@@ -1,0 +1,99 @@
+
+<% include('../partials/header.ejs') %>
+
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/edit.css">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h2 class="text-center text-primary mb-4">Edit User</h2>
+
+                    <!-- Edit User Form -->
+                    <form action="" method="post" onsubmit="return validateForm()">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter the name" value="<%= user.name %>" required onblur="validateName()" >
+                            <span id="nameError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter the email" value="<%= user.email %>" required onblur="validateEmail()">
+                            <span id="emailError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mno">Mobile No.</label>
+                            <input type="text" class="form-control" id="mno" name="mno" placeholder="Enter the mobile" value="<%= user.mobile %>" onblur="validateMobile()"  required>
+                            <span id="mobileError" style="color: red;"></span>
+                        </div>
+
+                        <input type="hidden" name="id" value="<%= user._id %>">
+
+                        <button type="submit" class="btn btn-primary btn-block">Update</button>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <a href="/admin/dashboard" class="btn btn-secondary">Go Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validateName(){
+        const name= document.getElementById('name').value;
+        const nameRegex= /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(name)) {
+            document.getElementById('nameError').textContent= "Name can only contain letters and spaces";
+            return false;
+        } else {
+            document.getElementById('nameError').textContent= '';
+            return true;
+        }
+    };
+    function validateMobile(){
+        const mobile= document.getElementById('mno').value;
+        const mobileRegex= /^[0-9]{10}$/;
+        if (!mobileRegex.test(mobile)) {
+            document.getElementById('mobileError').textContent= "Mobile number Must be 10 digit";
+            return false;
+        } else {
+            document.getElementById('mobileError').textContent= '';
+            return true;
+        }
+    };
+    function validateEmail() {
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = "Please enter a valid email address";
+        return false; 
+    } else {
+        document.getElementById('emailError').textContent = '';
+        return true; 
+    }
+}
+
+    function validateForm(){
+        let isValidName=validateName();
+        let isValidMobile =validateMobile();
+        let isValidEmail =validateEmail();
+        if (isValidMobile && isValidName && isValidEmail) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+
+
+<% include('../partials/footer.ejs') %>
+
+

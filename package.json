@@ -3,28 +3,35 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && xcopy /E /I /Y \"src\\public\" \"dist\\public\" && xcopy /E /I /Y \"src\\views\" \"dist\\views\" && mkdir \"dist\\public\\userImages\" 2>nul",
+    "start": "nodemon dist/app.js",
+    "dev": "concurrently \"tsc --watch\" \"nodemon dist/app.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/multer": "^1.4.12",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.5.1",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "method-override": "^3.0.0",
+    "mongodb": "^6.14.0",
     "mongoose": "^8.11.0",
+    "multer": "^1.4.5-lts.1",
     "nocache": "^4.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.13.5",
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"

@@ -2,9 +2,8 @@ import { Request,Response } from "express";
 import User, { IUser } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import { promises } from "dns";
-import { isAdmin } from "../../middleware/adminAuth";
 import { userInfo } from "os";
-
+import multer = require("multer");
 
 interface NewUserRequestBody{
     name:string;
@@ -32,7 +31,7 @@ export const securePassword= async(password:string):Promise<string>=>{
 
 export const loadLogin=async(req:Request,res:Response):Promise<void>=>{
     try {
-        res.render("login");
+        res.render("admin/login");
     } catch (error:any) {
         console.log(error.message)
     }
@@ -43,37 +42,41 @@ export const loadLogin=async(req:Request,res:Response):Promise<void>=>{
 export const verifyLogin= async(req:Request,res:Response):Promise<void>=>{
     try {
         const {email,password}= req.body;
+        if(!email ||!password){
+           return res.render('admin/login',{message:"All fields are required"})
+        }
         const userData= await User.findOne({email}) as IUser|null;
         if(userData){
             const passwordMatch= await bcrypt.compare(password,userData.password);
             if(passwordMatch){
                 if(userData.is_admin===false){
-                    res.render("login",{message:"Access denied. Only admins can access this page."})
+                   return res.render("admin/login",{message:"Access denied. Only admins can access this page."})
                 }else{
-                    req.session.user_id= userData._id
+                    req.session.user_id = userData._id.toString()
                     res.redirect('/admin/home')
                 } 
             }else{
-                res.render('login',{message:"Invalid Credentials"})
+              return  res.render('admin/login',{message:"Invalid Credentials"})
             }
         }else{
-            res.render("login",{message:"Login details are incorrect."})
+           return res.render("admin/login",{message:"Login details are incorrect."})
         }
 
-    } catch (error) {
-        
+    } catch (error:any) {
+        console.log(error.message);
+        res.render('admin/login',{message:"An error occurred during login"})
     }
 };
 export const loadHomePage= async(req:Request,res:Response):Promise<void>=>{
     try {
         const userData= await User.findById(req.session.user_id) as IUser |null;
-        res.render('home',{user:userData});
+        res.render('admin/home',{admin:userData});
     } catch (error:any) {
         console.log(error.message);
     }
-}
+};
 
-export const isLogout =async(req:Request,res:Response):Promise<void>=>{
+export const adminLogout =async(req:Request,res:Response):Promise<void>=>{
     try {
         req.session.destroy((err)=>{
             if(err){
@@ -90,7 +93,7 @@ export const isLogout =async(req:Request,res:Response):Promise<void>=>{
 export const adminDashboard= async(req:Request,res:Response):Promise<void>=>{
     try {
         const usersData= await User.find({is_admin:false}) as IUser[];
-        res.render('dashboard',{users:usersData,searchQuery:""});
+        res.render('admin/dashboard',{users:usersData,searchQuery:""});
     } catch (error:any) {
         console.log(error.message);
     }
@@ -98,7 +101,7 @@ export const adminDashboard= async(req:Request,res:Response):Promise<void>=>{
 
 export const newUserLoad= async(req:Request,res:Response):Promise<void>=>{
     try {
-        res.render('newUser')
+        res.render('admin/new-user')
     } catch (error:any) {
         console.log(error.message);
     }
@@ -120,7 +123,7 @@ export const addUser= async(req:Request<{},{},NewUserRequestBody>,res:Response):
         if(userData){
             res.redirect('/admin/dashboard');
         }else{
-            res.render('newUser',{message:"Something went wrong"});
+            res.render('admin/new-user',{message:"Something went wrong"});
         }
     } catch (error:any) {
         console.log(error.message)
@@ -131,7 +134,7 @@ export const loadEditUserPage= async(req:Request,res:Response):Promise<void>=>{
         const id = req.query.id as string;
         const userData= await User.findById(id)as IUser|null ;
         if(userData){
-            res.render('editUser',{user:userData});
+            res.render('admin/edit-user',{user:userData});
         } else{
             res.redirect('/admin/dashboard');
         }
@@ -168,15 +171,15 @@ export const searchUsers= async(req:Request,res:Response):Promise<void>=>{
         const searchQuery= (req.query.q as string) || "";
         const query= {
             is_admin:false, $or:[
-                {name:{$regex:searchQuery,$option:"i"}},
-                {email:{$regex:searchQuery,$option:"i"}}
+                {name:{$regex:searchQuery,$options:"i"}},
+                {email:{$regex:searchQuery,$options:"i"}}
             ]
         };
         const userData=await User.find(query) as IUser[];
-        res.render('dashboard',{users:userData,searchQuery})
+        res.render('admin/dashboard',{users:userData,searchQuery})
     } catch (error:any) {
         console.log(error.message);
-        res.render('dashboard',{users:[],searchQuery:"",message:"An error occurred while searching"})
+        res.render('admin/dashboard',{users:[],searchQuery:"",message:"An error occurred while searching"})
     }
 }
 
@@ -186,7 +189,7 @@ export default{
     loadLogin,
     securePassword,
     verifyLogin,
-    isLogout,
+    adminLogout,
     loadHomePage,
     adminDashboard,
     newUserLoad,

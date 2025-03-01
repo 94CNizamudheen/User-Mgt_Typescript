@@ -1,0 +1,138 @@
+<% include('../partials/header.ejs') %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/registration.css">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h2 class="text-center text-primary mb-4">Add New User</h2>
+
+                    <!-- Error Message Display -->
+                    <% if (typeof message !== 'undefined') { %>
+                        <div class="alert alert-danger text-center">
+                            <%= message %>
+                        </div>
+                    <% } %>
+
+                    <!-- Add New User Form -->
+                    <form  action="" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter the name" required onblur="validatename()">
+                            <span id="nameError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter the email" required onblur="validateEmail()">
+                            <span id="emailError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mno">Mobile No.</label>
+                            <input type="text" class="form-control" id="mno" name="mno" placeholder="Enter mobile no" required onblur="validateMobile()">
+                            <span id="mobileError" style="color: red;"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Profile Image</label>
+                            <button type="button" id="uploadBtn" class="btn btn-primary">Choose File</button>
+                            <span id="fileName">No file chosen</span>
+                            <input type="file" class="form-control-file d-none" id="image" name="image" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter the password" required onblur="validatePassword()">
+                            <span id="passwordError" style="color: red;"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Add User</button>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <a href="/admin/dashboard" class="btn btn-secondary">Go Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function validatename(){
+    const name=document.getElementById('name').value;
+    const nameRegux= /^[A-Za-z\s]+$/;
+    if(!nameRegux.test(name)){
+        document.getElementById('nameError').textContent="Name can only contain letters and spaces. "
+        return false;
+    }else{
+        document.getElementById('nameError').textContent="";
+        return true;
+    }
+};
+function validateMobile(){
+    const mobile=document.getElementById('mno').value;
+    const mobileRegux= /^[0-9]{10}$/;
+    if(!mobileRegux.test(mobile)){
+        document.getElementById('mobileError').textContent="Mobile Number must be exactly 10 digit. "
+        return false;
+    }else{
+        document.getElementById('mobileError').textContent="";
+        return true;
+    }
+};
+function validatePassword(){
+    const password=document.getElementById('password').value;
+    
+    if(password.length<6){
+        document.getElementById('passwordError').textContent="Password must be atleast 6 characters  long. "
+        return false;
+    }else{
+        document.getElementById('passwordError').textContent="";
+        return true;
+    }
+};
+function validateEmail() {
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = "Please enter a valid email address";
+        return false; 
+    } else {
+        document.getElementById('emailError').textContent = '';
+        return true; 
+    }
+};
+
+function validateForm(){
+    let isNameValid= validatename();
+    let isMobileValid= validateMobile();
+    let isPasswordValid= validatePassword();
+    let isEmailValid=validateEmail();
+    if (isMobileValid && isNameValid && isPasswordValid && isEmailValid) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+    const uploadBtn = document.getElementById('uploadBtn');
+    const imageInput = document.getElementById('image');
+    const fileNameSpan = document.getElementById('fileName');
+
+    uploadBtn.addEventListener('click', () => {
+        imageInput.click(); // Trigger file input
+    });
+
+    imageInput.addEventListener('change', () => {
+        fileNameSpan.textContent = imageInput.files[0] ? imageInput.files[0].name : 'No file chosen';
+    });
+
+
+</script>
+
+<% include('../partials/footer.ejs') %>
